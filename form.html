@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Council | Apply</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;900&family=Plus+Jakarta+Sans:wght@300;500;700&display=swap');
+
+        :root {
+            --bg-dark: #030712;
+            --accent-glow: #ff4500;
+            --accent-blue: #00ffff;
+            --gold-cream: #f4e8c1;
+            --text-muted: #9ca3af;
+            --card-bg: rgba(255, 255, 255, 0.01);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --nav-bg: rgba(3, 7, 18, 0.4);
+            --text-main: #f4e8c1;
+            --font-serif: 'Cinzel', serif;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        [data-theme="light"] {
+            --bg-dark: #faf7f2;
+            --accent-glow: #c84b23;
+            --accent-blue: #0d6efd;
+            --gold-cream: #1e293b;
+            --text-muted: #64748b;
+            --card-bg: rgba(30, 41, 59, 0.02);
+            --card-border: rgba(30, 41, 59, 0.1);
+            --nav-bg: rgba(250, 247, 242, 0.6);
+            --text-main: #0f172a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background: var(--bg-dark); color: var(--text-main); font-family: var(--font-sans); overflow-x: hidden; transition: background 0.5s ease, color 0.5s ease; }
+        #bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+
+        /* Navbar */
+        header { position: fixed; top: 0; left: 0; width: 100%; z-index: 100; background: var(--nav-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--card-border); }
+        .nav-container { max-width: 1400px; margin: 0 auto; padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo-section { display: flex; align-items: center; gap: 15px; text-decoration: none; color: var(--text-main); }
+        .logo-img { height: 50px; width: 50px; border-radius: 50%; border: 2px solid var(--accent-glow); object-fit: cover; }
+        .logo-text { font-family: var(--font-serif); font-weight: 900; font-size: 1.2rem; letter-spacing: 2px; }
+        
+        .right-nav-cluster { display: flex; align-items: center; gap: 2rem; }
+        .nav-links { display: flex; gap: 3rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 0.95rem; letter-spacing: 1px; text-transform: uppercase; transition: all 0.4s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-main); }
+
+        .theme-toggle-btn { background: var(--card-bg); border: 2px solid var(--card-border); cursor: pointer; padding: 8px 16px; border-radius: 50px; color: var(--text-main); font-weight: 700; font-size: 0.8rem; letter-spacing: 1px; }
+
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; background: none; border: none; cursor: pointer; z-index: 101; }
+        .menu-toggle span { width: 25px; height: 2px; background-color: var(--text-main); transition: 0.4s; }
+
+        /* Portal Card Box With Close Vectors */
+        .form-wrapper { min-height: calc(100vh - 80px); display: flex; align-items: center; justify-content: center; padding: 4rem 2rem; position: relative; z-index: 2; }
+        .glass-portal { background: var(--card-bg); border: 1px solid var(--card-border); max-width: 650px; width: 100%; padding: 4rem; border-radius: 32px; backdrop-filter: blur(25px); box-shadow: 0 30px 60px rgba(0,0,0,0.1); position: relative; }
+        
+        /* Ultra-Cool Glowing Close Button */
+        .portal-close-btn { position: absolute; top: 25px; right: 25px; width: 40px; height: 40px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; text-decoration: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-weight: 300; }
+        .portal-close-btn:hover { border-color: var(--accent-glow); color: var(--accent-glow); box-shadow: 0 0 15px rgba(255, 69, 0, 0.3); transform: rotate(90deg) scale(1.1); }
+
+        .glass-portal h2 { font-family: var(--font-serif); font-size: 2.4rem; margin-bottom: 0.5rem; text-align: center; }
+        .glass-portal p { color: var(--text-muted); text-align: center; margin-bottom: 3.5rem; font-size: 0.95rem; font-weight: 300; }
+
+        .field-group { position: relative; margin-bottom: 2.5rem; }
+        .split-fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+
+        .field-group input, .field-group select { width: 100%; padding: 14px 0; background: transparent; border: none; border-bottom: 2px solid var(--card-border); color: var(--text-main); font-size: 1.05rem; outline: none; transition: all 0.4s; }
+        .field-group select { background-color: var(--bg-dark); }
+        .field-group input:focus, .field-group select:focus { border-bottom-color: var(--accent-blue); }
+
+        .field-group label { position: absolute; top: 14px; left: 0; color: var(--text-muted); transition: 0.3s ease all; pointer-events: none; font-weight: 500; }
+        .field-group input:focus ~ label, .field-group input:not(:placeholder-shown) ~ label { top: -14px; font-size: 0.8rem; color: var(--accent-blue); }
+        .select-marker { top: -14px !important; font-size: 0.8rem; color: var(--text-muted); }
+
+        .transmit-btn { width: 100%; padding: 18px; background: var(--accent-glow); color: #fff; border: none; border-radius: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; box-shadow: 0 10px 25px rgba(255, 69, 0, 0.2); transition: all 0.4s; }
+        .transmit-btn:hover { background: var(--text-main); color: var(--bg-dark); transform: translateY(-3px); }
+
+        @media (max-width: 768px) {
+            .nav-links { position: fixed; top: 0; right: -100%; width: 85%; height: 100vh; background: var(--bg-dark); flex-direction: column; justify-content: center; align-items: center; gap: 3rem; transition: 0.4s; }
+            .nav-links.active { right: 0; }
+            .menu-toggle { display: flex; }
+            .glass-portal { padding: 2.5rem 1.5rem; }
+            .split-fields { grid-template-columns: 1fr; gap: 0; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <header>
+        <nav class="nav-container">
+            <a href="index.html" class="logo-section">
+                <img src="logo.png" alt="Logo" class="logo-img">
+                <span class="logo-text">D&D COUNCIL</span>
+            </a>
+            <div class="right-nav-cluster">
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="events.html">Events</a></li>
+                    <li><a href="team.html">The Team</a></li>
+                </ul>
+                <button class="theme-toggle-btn" id="themeToggle">🌓 Mode</button>
+                <button class="menu-toggle"><span></span><span></span><span></span></button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="form-wrapper">
+        <div class="glass-portal">
+            <a href="index.html" class="portal-close-btn" aria-label="Cancel Request">✕</a>
+
+            <h2>INDUCTION DOSSIER</h2>
+            <p>File your operational parameters to request high-tier council membership deployment status.</p>
+            <form id="joinForm">
+                <div class="field-group">
+                    <input type="text" id="name" required placeholder=" ">
+                    <label>Full Identity Name</label>
+                </div>
+                <div class="split-fields">
+                    <div class="field-group">
+                        <input type="text" id="class" required placeholder=" ">
+                        <label>Class / Year</label>
+                    </div>
+                    <div class="field-group">
+                        <input type="text" id="rollNo" required placeholder=" ">
+                        <label>Roll Identifier</label>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <input type="tel" id="phone" required placeholder=" ">
+                    <label>WhatsApp Secure Contact</label>
+                </div>
+                <div class="field-group">
+                    <input type="email" id="email" required placeholder=" ">
+                    <label>E-Mail Address Link</label>
+                </div>
+                <div class="field-group">
+                    <select id="team" required>
+                        <option value="" disabled selected hidden></option>
+                        <option value="Technical Core">Technical Core</option>
+                        <option value="Media & Marketing">Media & Marketing Core</option>
+                        <option value="Documentation Control">Documentation Control</option>
+                        <option value="Design Operations">Design Operations</option>
+                    </select>
+                    <label class="select-marker">Target Strategic Department</label>
+                </div>
+                <button type="submit" class="transmit-btn">TRANSMIT PACKET</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Theme Engine
+        const themeToggle = document.getElementById('themeToggle');
+        if (localStorage.getItem('theme') === 'light') { document.documentElement.setAttribute('data-theme', 'light'); }
+        themeToggle.addEventListener('click', () => {
+            let currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        const menuToggle = document.querySelector(".menu-toggle");
+        const navLinks = document.querySelector(".nav-links");
+        menuToggle.addEventListener("click", () => {
+            menuToggle.classList.toggle("active");
+            navLinks.classList.toggle("active");
+        });
+
+        // Glowing Orbital Floating Particle Ring Loop Engine
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        let dots = [];
+
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+
+        class OrbDot {
+            constructor() {
+                this.ang = Math.random() * Math.PI * 2;
+                this.rad = Math.random() * 250 + 100;
+                this.speed = Math.random() * 0.003 + 0.001;
+                this.size = Math.random() * 2 + 1;
+            }
+            draw() {
+                let cx = canvas.width / 2;
+                let cy = canvas.height / 2;
+                let x = cx + Math.cos(this.ang) * this.rad;
+                let y = cy + Math.sin(this.ang) * this.rad;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, this.size, 0, Math.PI * 2);
+                let currentTheme = document.documentElement.getAttribute('data-theme');
+                ctx.fillStyle = currentTheme === 'light' ? 'rgba(200, 75, 35, 0.4)' : 'rgba(0, 255, 255, 0.4)';
+                ctx.fill();
+            }
+            update() {
+                this.ang += this.speed;
+            }
+        }
+
+        for(let i=0; i<60; i++) dots.push(new OrbDot());
+
+        function loop() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            dots.forEach(d => { d.update(); d.draw(); });
+            requestAnimationFrame(loop);
+        }
+        loop();
+
+        // WhatsApp Submission Packet Configuration
+        document.getElementById('joinForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const className = document.getElementById('class').value;
+            const rollNo = document.getElementById('rollNo').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const team = document.getElementById('team').value;
+
+            const packet = `⚡ *COUNCIL INDUCTION INTERCEPTED* ⚡%0A%0A` +
+                           `👤 *Identity:* ${name}%0A` +
+                           `🏫 *Class Context:* ${className}%0A` +
+                           `🆔 *Identifier:* ${rollNo}%0A` +
+                           `📞 *Secure Contact:* ${phone}%0A` +
+                           `✉️ *Link E-mail:* ${email}%0A` +
+                           `🛠️ *Target Core:* *${team}*`;
+
+            window.open(`https://api.whatsapp.com/send?phone=918451055384&text=${packet}`, '_blank');
+        });
+    </script>
+</body>
+</html>

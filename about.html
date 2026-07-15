@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Council | About</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;900&family=Plus+Jakarta+Sans:wght@300;500;700&display=swap');
+
+        :root {
+            --bg-dark: #030712;
+            --accent-glow: #ff4500;
+            --accent-blue: #00ffff;
+            --gold-cream: #f4e8c1;
+            --text-muted: #9ca3af;
+            --card-bg: rgba(255, 255, 255, 0.02);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --nav-bg: rgba(3, 7, 18, 0.4);
+            --text-main: #f4e8c1;
+            --font-serif: 'Cinzel', serif;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        [data-theme="light"] {
+            --bg-dark: #faf7f2;
+            --accent-glow: #c84b23;
+            --accent-blue: #0d6efd;
+            --gold-cream: #1e293b;
+            --text-muted: #64748b;
+            --card-bg: rgba(30, 41, 59, 0.03);
+            --card-border: rgba(30, 41, 59, 0.1);
+            --nav-bg: rgba(250, 247, 242, 0.6);
+            --text-main: #0f172a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background: var(--bg-dark); color: var(--text-main); font-family: var(--font-sans); overflow-x: hidden; transition: background 0.5s ease, color 0.5s ease; }
+        #bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+
+        /* Navbar Layout */
+        header { position: fixed; top: 0; left: 0; width: 100%; z-index: 100; background: var(--nav-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--card-border); }
+        .nav-container { max-width: 1400px; margin: 0 auto; padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo-section { display: flex; align-items: center; gap: 15px; text-decoration: none; color: var(--text-main); }
+        .logo-img { height: 50px; width: 50px; border-radius: 50%; border: 2px solid var(--accent-glow); object-fit: cover; }
+        .logo-text { font-family: var(--font-serif); font-weight: 900; font-size: 1.2rem; letter-spacing: 2px; }
+        
+        .right-nav-cluster { display: flex; align-items: center; gap: 2rem; }
+        .nav-links { display: flex; gap: 3rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 0.95rem; letter-spacing: 1px; text-transform: uppercase; transition: all 0.4s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-main); }
+
+        .theme-toggle-btn { background: var(--card-bg); border: 2px solid var(--card-border); cursor: pointer; padding: 8px 16px; border-radius: 50px; color: var(--text-main); font-weight: 700; font-size: 0.8rem; letter-spacing: 1px; }
+
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; background: none; border: none; cursor: pointer; z-index: 101; }
+        .menu-toggle span { width: 25px; height: 2px; background-color: var(--text-main); transition: 0.4s; }
+
+        /* Floating Button */
+        .floating-join-btn { position: fixed; bottom: 35px; right: 35px; z-index: 99; display: flex; align-items: center; gap: 15px; background: var(--bg-dark); border: 2px solid var(--accent-glow); padding: 12px 24px 12px 12px; border-radius: 50px; text-decoration: none; color: var(--text-main); font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; backdrop-filter: blur(15px); box-shadow: 0 0 30px rgba(255, 69, 0, 0.2); transition: all 0.4s; }
+        .floating-btn-logo { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); animation: spin 25s linear infinite; }
+
+        /* Content Layout */
+        .about-wrapper { max-width: 1200px; margin: 100px auto 4rem; padding: 2rem; position: relative; z-index: 2; }
+        .main-title { font-family: var(--font-serif); font-size: clamp(3rem, 7vw, 5.5rem); letter-spacing: 4px; margin-bottom: 3rem; border-bottom: 1px solid var(--card-border); padding-bottom: 1rem; }
+        .grid-layout { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.5rem; }
+        .glass-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 3.5rem 2.5rem; border-radius: 24px; backdrop-filter: blur(20px); transition: all 0.4s; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .glass-card:hover { border-color: var(--accent-blue); transform: translateY(-5px); }
+        .card-wide { grid-column: span 2; }
+        .glass-card h3 { font-family: var(--font-serif); font-size: 2rem; margin-bottom: 1.5rem; }
+        .glass-card p { color: var(--text-muted); font-size: 1.1rem; line-height: 1.8; font-weight: 300; }
+
+        @media (max-width: 768px) {
+            .nav-links { position: fixed; top: 0; right: -100%; width: 85%; height: 100vh; background: var(--bg-dark); flex-direction: column; justify-content: center; align-items: center; gap: 3rem; transition: 0.4s; }
+            .nav-links.active { right: 0; }
+            .menu-toggle { display: flex; }
+            .grid-layout { grid-template-columns: 1fr; }
+            .card-wide { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <header>
+        <nav class="nav-container">
+            <a href="index.html" class="logo-section">
+                <img src="logo.png" alt="Logo" class="logo-img">
+                <span class="logo-text">D&D COUNCIL</span>
+            </a>
+            <div class="right-nav-cluster">
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html" class="active">About Us</a></li>
+                    <li><a href="events.html">Events</a></li>
+                    <li><a href="team.html">The Team</a></li>
+                </ul>
+                <button class="theme-toggle-btn" id="themeToggle">🌓 Mode</button>
+                <button class="menu-toggle"><span></span><span></span><span></span></button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="about-wrapper">
+        <h1 class="main-title">OUR IDENTITY</h1>
+        <div class="grid-layout">
+            <div class="glass-card card-wide">
+                <h3>The Intellectual Catalyst</h3>
+                <p>Founded as an elite campus forum, the Debate & Dialogue Club stands as a structural refinery for critical thought, strategic expression, and logical architectures. We build configurations of text and speech that dismantle assumptions and rebuild perspective.</p>
+            </div>
+            <div class="glass-card">
+                <h3>Core Mechanics</h3>
+                <p>We mandate absolute empirical verification over loose emotional conjecture. Every cross-examination session challenges compliance patterns, pushing members to map global political realities under extreme crossfire conditions.</p>
+            </div>
+            <div class="glass-card">
+                <h3>Functional Scope</h3>
+                <p>Through weekly dialetical simulations, macro-level parliamentary formats, and advanced rhetoric workshops, our members scale up their strategic clarity, operational confidence, and critical analytical capacities.</p>
+            </div>
+        </div>
+    </main>
+
+    <a href="form.html" class="floating-join-btn">
+        <img src="logo.png" alt="Mini Logo" class="floating-btn-logo">
+        <span>Join The Council</span>
+    </a>
+
+    <script>
+        // Theme Engine
+        const themeToggle = document.getElementById('themeToggle');
+        if (localStorage.getItem('theme') === 'light') { document.documentElement.setAttribute('data-theme', 'light'); }
+        themeToggle.addEventListener('click', () => {
+            let currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        const menuToggle = document.querySelector(".menu-toggle");
+        const navLinks = document.querySelector(".nav-links");
+        menuToggle.addEventListener("click", () => {
+            menuToggle.classList.toggle("active");
+            navLinks.classList.toggle("active");
+        });
+
+        // Dynamic Text Drift Engine
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        let words = [];
+        const pool = ['REFUTE', 'REBUT', 'LOGIC', 'DIALECTIC', 'SYNTHESIS', 'RHETORIC', 'VERIFY', 'DISCOURSE'];
+
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+
+        class DriftWord {
+            constructor() {
+                this.text = pool[Math.floor(Math.random() * pool.length)];
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 40 + 20;
+                this.speed = Math.random() * 0.3 + 0.1;
+            }
+            draw() {
+                ctx.font = `900 ${this.size}px 'Cinzel'`;
+                let currentTheme = document.documentElement.getAttribute('data-theme');
+                ctx.fillStyle = currentTheme === 'light' ? 'rgba(200, 75, 35, 0.04)' : 'rgba(244, 232, 193, 0.03)';
+                ctx.fillText(this.text, this.x, this.y);
+            }
+            update() {
+                this.y -= this.speed;
+                if (this.y < -50) {
+                    this.y = canvas.height + 50;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+        }
+
+        for(let i=0; i<25; i++) words.push(new DriftWord());
+
+        function loop() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            words.forEach(w => { w.update(); w.draw(); });
+            requestAnimationFrame(loop);
+        }
+        loop();
+    </script>
+</body>
+</html>

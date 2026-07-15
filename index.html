@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Council | Home</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;900&family=Plus+Jakarta+Sans:wght@300;500;700;800&display=swap');
+
+        :root {
+            --bg-dark: #030712;
+            --accent-glow: #ff4500;
+            --accent-blue: #00ffff;
+            --gold-cream: #f4e8c1;
+            --text-muted: #9ca3af;
+            --card-bg: rgba(255, 255, 255, 0.02);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --nav-bg: rgba(3, 7, 18, 0.4);
+            --text-main: #f4e8c1;
+            --font-serif: 'Cinzel', serif;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+            --matrix-color: rgba(244, 232, 193, 0.15);
+        }
+
+        [data-theme="light"] {
+            --bg-dark: #faf7f2;
+            --accent-glow: #c84b23;
+            --accent-blue: #0d6efd;
+            --gold-cream: #1e293b;
+            --text-muted: #64748b;
+            --card-bg: rgba(30, 41, 59, 0.03);
+            --card-border: rgba(30, 41, 59, 0.1);
+            --nav-bg: rgba(250, 247, 242, 0.6);
+            --text-main: #0f172a;
+            --matrix-color: rgba(200, 75, 35, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background: var(--bg-dark); color: var(--text-main); font-family: var(--font-sans); overflow-x: hidden; transition: background 0.5s ease, color 0.5s ease; }
+        
+        #bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+
+        /* Navigation Architecture */
+        header { position: fixed; top: 0; left: 0; width: 100%; z-index: 100; background: var(--nav-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--card-border); transition: all 0.5s; }
+        .nav-container { max-width: 1400px; margin: 0 auto; padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo-section { display: flex; align-items: center; gap: 15px; text-decoration: none; color: var(--text-main); }
+        .logo-img { height: 50px; width: 50px; border-radius: 50%; border: 2px solid var(--accent-glow); box-shadow: 0 0 20px rgba(255, 69, 0, 0.2); object-fit: cover; }
+        .logo-text { font-family: var(--font-serif); font-weight: 900; font-size: 1.2rem; letter-spacing: 2px; }
+        
+        .right-nav-cluster { display: flex; align-items: center; gap: 2rem; }
+        .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 0.95rem; letter-spacing: 1px; text-transform: uppercase; transition: all 0.3s; position: relative; padding: 5px 0; }
+        .nav-links a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: linear-gradient(90deg, var(--accent-blue), var(--accent-glow)); transition: all 0.3s; }
+        .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-main); }
+
+        /* Premium Theme Toggle Switch */
+        .theme-toggle-btn { background: var(--card-bg); border: 2px solid var(--card-border); cursor: pointer; padding: 8px 16px; border-radius: 50px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; color: var(--text-main); font-weight: 700; font-size: 0.8rem; letter-spacing: 1px; gap: 8px; }
+        .theme-toggle-btn:hover { border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); transform: scale(1.05); }
+
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; background: none; border: none; cursor: pointer; z-index: 101; }
+        .menu-toggle span { width: 25px; height: 2px; background-color: var(--text-main); transition: 0.4s; }
+
+        /* Pulsing Dynamic Floating Action Button */
+        .floating-join-btn { position: fixed; bottom: 35px; right: 35px; z-index: 99; display: flex; align-items: center; gap: 15px; background: var(--bg-dark); border: 2px solid var(--accent-glow); padding: 12px 24px 12px 12px; border-radius: 50px; text-decoration: none; color: var(--text-main); font-weight: 800; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(255, 69, 0, 0.2); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .floating-join-btn:hover { transform: translateY(-8px) scale(1.03); border-color: var(--accent-blue); box-shadow: 0 0 40px rgba(0, 255, 255, 0.3); }
+        .floating-btn-logo { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); animation: spin 25s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Main Hero Space */
+        .hero-stage { position: relative; width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; z-index: 2; padding: 2rem; }
+        .panel-glass { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 32px; padding: 5rem 3rem; text-align: center; backdrop-filter: blur(25px); max-width: 950px; width: 100%; box-shadow: 0 40px 80px rgba(0,0,0,0.3); transition: border-color 0.5s ease; }
+        .glitch-tag { font-size: 0.85rem; font-weight: 800; letter-spacing: 5px; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 1.5rem; }
+        .hero-stage h1 { font-family: var(--font-serif); font-size: clamp(2.5rem, 6vw, 5rem); line-height: 1.1; margin-bottom: 2rem; font-weight: 900; letter-spacing: -1px; }
+        .hero-stage p { font-size: clamp(1.1rem, 2vw, 1.4rem); color: var(--text-muted); max-width: 650px; margin: 0 auto 3rem; font-weight: 300; line-height: 1.7; }
+        
+        .cta-portal { display: inline-block; padding: 16px 40px; border: 2px solid var(--card-border); border-radius: 50px; color: var(--text-main); text-decoration: none; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; background: transparent; transition: all 0.4s; }
+        .cta-portal:hover { border-color: var(--accent-glow); box-shadow: 0 0 30px rgba(255,69,0,0.25); transform: scale(1.05); }
+
+        @media (max-width: 768px) {
+            .nav-links { position: fixed; top: 0; right: -100%; width: 85%; height: 100vh; background: var(--bg-dark); flex-direction: column; justify-content: center; align-items: center; gap: 3rem; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); backdrop-filter: blur(20px); }
+            .nav-links.active { right: 0; }
+            .right-nav-cluster { gap: 1rem; }
+            .menu-toggle { display: flex; }
+            .menu-toggle.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+            .menu-toggle.active span:nth-child(2) { opacity: 0; }
+            .menu-toggle.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+            .panel-glass { padding: 3rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <header>
+        <nav class="nav-container">
+            <a href="index.html" class="logo-section">
+                <img src="logo.png" alt="Logo" class="logo-img">
+                <span class="logo-text">D&D COUNCIL</span>
+            </a>
+            <div class="right-nav-cluster">
+                <ul class="nav-links">
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="events.html">Events</a></li>
+                    <li><a href="team.html">The Team</a></li>
+                </ul>
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme">
+                    <span id="themeBtnText">🌓 System</span>
+                </button>
+                <button class="menu-toggle"><span></span><span></span><span></span></button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="hero-stage">
+        <div class="panel-glass">
+            <div class="glitch-tag">COMMENCE LOGICAL DISCOURSE</div>
+            <h1>Where Discord Sparks Discourse.</h1>
+            <p>We forge articulate minds, weaponize systematic logic, and build execution frameworks for tomorrow's structural realities.</p>
+            <a href="about.html" class="cta-portal">Enter The Sanctum</a>
+        </div>
+    </main>
+
+    <a href="form.html" class="floating-join-btn">
+        <img src="logo.png" alt="Mini Logo" class="floating-btn-logo">
+        <span>Join The Council</span>
+    </a>
+
+    <script>
+        // Universal Theme Logic
+        const themeToggle = document.getElementById('themeToggle');
+        const themeBtnText = document.getElementById('themeBtnText');
+        
+        // Check current local state
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeBtnText.innerText = "☀️ Light";
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeBtnText.innerText = "🌙 Dark";
+        }
+
+        themeToggle.addEventListener('click', () => {
+            let currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeBtnText.innerText = "🌙 Dark";
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                themeBtnText.innerText = "☀️ Light";
+            }
+        });
+
+        // Mobile Menu Toggle
+        const menuToggle = document.querySelector(".menu-toggle");
+        const navLinks = document.querySelector(".nav-links");
+        menuToggle.addEventListener("click", () => {
+            menuToggle.classList.toggle("active");
+            navLinks.classList.toggle("active");
+        });
+
+        // Neural Matrix Interactive Particle Loop Engine
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const mouse = { x: null, y: null, radius: 180 };
+
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+        window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.6;
+                this.vy = (Math.random() - 0.5) * 0.6;
+                this.baseRadius = Math.random() * 2 + 1;
+                this.radius = this.baseRadius;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                let currentTheme = document.documentElement.getAttribute('data-theme');
+                ctx.fillStyle = currentTheme === 'light' ? 'rgba(200, 75, 35, 0.6)' : 'rgba(0, 255, 255, 0.6)';
+                ctx.fill();
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+                if (mouse.x != null && mouse.y != null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < mouse.radius) {
+                        let force = (mouse.radius - dist) / mouse.radius;
+                        this.x -= dx / dist * force * 3;
+                        this.y -= dy / dist * force * 3;
+                        this.radius = this.baseRadius * 2.5;
+                    } else {
+                        if (this.radius > this.baseRadius) this.radius -= 0.1;
+                    }
+                } else {
+                    if (this.radius > this.baseRadius) this.radius -= 0.1;
+                }
+            }
+        }
+
+        function init() {
+            particles = [];
+            let count = Math.min((canvas.width * canvas.height) / 9000, 150);
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+        init();
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                
+                for (let j = i + 1; j < particles.length; j++) {
+                    let dx = particles[i].x - particles[j].x;
+                    let dy = particles[i].y - particles[j].y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        let alpha = (120 - dist) / 120 * 0.15;
+                        let currentTheme = document.documentElement.getAttribute('data-theme');
+                        ctx.strokeStyle = currentTheme === 'light' ? `rgba(30, 41, 59, ${alpha})` : `rgba(244, 232, 193, ${alpha})`;
+                        ctx.lineWidth = 0.8;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>

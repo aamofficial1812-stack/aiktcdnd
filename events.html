@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Council | Events</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;900&family=Plus+Jakarta+Sans:wght@300;500;700&display=swap');
+
+        :root {
+            --bg-dark: #030712;
+            --accent-glow: #ff4500;
+            --accent-blue: #00ffff;
+            --gold-cream: #f4e8c1;
+            --text-muted: #9ca3af;
+            --card-bg: rgba(255, 255, 255, 0.01);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --nav-bg: rgba(3, 7, 18, 0.4);
+            --text-main: #f4e8c1;
+            --font-serif: 'Cinzel', serif;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        [data-theme="light"] {
+            --bg-dark: #faf7f2;
+            --accent-glow: #c84b23;
+            --accent-blue: #0d6efd;
+            --gold-cream: #1e293b;
+            --text-muted: #64748b;
+            --card-bg: rgba(30, 41, 59, 0.02);
+            --card-border: rgba(30, 41, 59, 0.1);
+            --nav-bg: rgba(250, 247, 242, 0.6);
+            --text-main: #0f172a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background: var(--bg-dark); color: var(--text-main); font-family: var(--font-sans); overflow-x: hidden; transition: background 0.5s ease, color 0.5s ease; }
+        #bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+
+        /* Navbar */
+        header { position: fixed; top: 0; left: 0; width: 100%; z-index: 100; background: var(--nav-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--card-border); }
+        .nav-container { max-width: 1400px; margin: 0 auto; padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo-section { display: flex; align-items: center; gap: 15px; text-decoration: none; color: var(--text-main); }
+        .logo-img { height: 50px; width: 50px; border-radius: 50%; border: 2px solid var(--accent-glow); object-fit: cover; }
+        .logo-text { font-family: var(--font-serif); font-weight: 900; font-size: 1.2rem; letter-spacing: 2px; }
+        
+        .right-nav-cluster { display: flex; align-items: center; gap: 2rem; }
+        .nav-links { display: flex; gap: 3rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 0.95rem; letter-spacing: 1px; text-transform: uppercase; transition: all 0.4s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-main); }
+
+        .theme-toggle-btn { background: var(--card-bg); border: 2px solid var(--card-border); cursor: pointer; padding: 8px 16px; border-radius: 50px; color: var(--text-main); font-weight: 700; font-size: 0.8rem; letter-spacing: 1px; }
+
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; background: none; border: none; cursor: pointer; z-index: 101; }
+        .menu-toggle span { width: 25px; height: 2px; background-color: var(--text-main); transition: 0.4s; }
+
+        /* Floating Action Button */
+        .floating-join-btn { position: fixed; bottom: 35px; right: 35px; z-index: 99; display: flex; align-items: center; gap: 15px; background: var(--bg-dark); border: 2px solid var(--accent-glow); padding: 12px 24px 12px 12px; border-radius: 50px; text-decoration: none; color: var(--text-main); font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; backdrop-filter: blur(15px); box-shadow: 0 0 30px rgba(255, 69, 0, 0.2); transition: all 0.4s; }
+        .floating-btn-logo { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); animation: spin 25s linear infinite; }
+
+        /* Bento Architecture */
+        .events-wrapper { max-width: 1400px; margin: 100px auto 4rem; padding: 2rem; position: relative; z-index: 2; }
+        .page-header { font-family: var(--font-serif); font-size: clamp(2.5rem, 5vw, 4.5rem); margin-bottom: 4rem; text-align: center; }
+        
+        .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 300px; gap: 2rem; perspective: 1000px; }
+        .bento-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 28px; padding: 2.5rem; position: relative; display: flex; align-items: flex-end; overflow: hidden; backdrop-filter: blur(15px); transition: border-color 0.4s, box-shadow 0.4s, transform 0.1s ease-out; transform-style: preserve-3d; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .bento-card:hover { border-color: var(--accent-glow); box-shadow: 0 30px 60px rgba(255, 69, 0, 0.1); }
+        
+        .item-tall { grid-row: span 2; }
+        .item-wide { grid-column: span 2; }
+
+        .tag { position: absolute; top: 25px; left: 25px; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; padding: 6px 16px; border-radius: 50px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); text-transform: uppercase; transform: translateZ(30px); }
+        .tag-active { background: rgba(0, 255, 255, 0.1); border-color: var(--accent-blue); color: var(--accent-blue); }
+        
+        .inner-meta { transform: translateZ(40px); width: 100%; }
+        .inner-meta h3 { font-family: var(--font-serif); font-size: 1.6rem; margin-bottom: 0.8rem; }
+        .inner-meta p { color: var(--text-muted); font-size: 1rem; font-weight: 300; line-height: 1.6; }
+
+        @media (max-width: 1024px) {
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+            .item-wide { grid-column: span 2; }
+        }
+        @media (max-width: 768px) {
+            .nav-links { position: fixed; top: 0; right: -100%; width: 85%; height: 100vh; background: var(--bg-dark); flex-direction: column; justify-content: center; align-items: center; gap: 3rem; transition: 0.4s; }
+            .nav-links.active { right: 0; }
+            .menu-toggle { display: flex; }
+            .bento-grid { grid-template-columns: 1fr; grid-auto-rows: minmax(250px, auto); }
+            .item-tall, .item-wide { grid-row: span 1; grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <header>
+        <nav class="nav-container">
+            <a href="index.html" class="logo-section">
+                <img src="logo.png" alt="Logo" class="logo-img">
+                <span class="logo-text">D&D COUNCIL</span>
+            </a>
+            <div class="right-nav-cluster">
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="events.html" class="active">Events</a></li>
+                    <li><a href="team.html">The Team</a></li>
+                </ul>
+                <button class="theme-toggle-btn" id="themeToggle">🌓 Mode</button>
+                <button class="menu-toggle"><span></span><span></span><span></span></button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="events-wrapper">
+        <h1 class="page-header">THE CHRONICLE SHELF</h1>
+        <div class="bento-grid">
+            
+            <div class="bento-card item-tall">
+                <div class="tag tag-active">UPCOMING HORIZON</div>
+                <div class="inner-meta">
+                    <h3>Grand Parliamentary Assembly</h3>
+                    <p>The apex cross-institutional simulation framework. System entries open shortly.</p>
+                </div>
+            </div>
+
+            <div class="bento-card">
+                <div class="tag">PAST ASSEMBLY</div>
+                <div class="inner-meta">
+                    <h3>Verbal Warfare Vol. 4</h3>
+                    <p>High-frequency scenario coordination and rebuttal training matrix.</p>
+                </div>
+            </div>
+
+            <div class="bento-card">
+                <div class="tag">LAB CORE</div>
+                <div class="inner-meta">
+                    <h3>Rhetoric Anatomy</h3>
+                    <p>Deconstructing mechanical structure components of absolute assertions.</p>
+                </div>
+            </div>
+
+            <div class="bento-card item-wide">
+                <div class="tag">GALLERY METRIC</div>
+                <div class="inner-meta">
+                    <h3>National Arena Champions</h3>
+                    <p>Capturing the strategic validation execution sequences secured at national tier levels.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <a href="form.html" class="floating-join-btn">
+        <img src="logo.png" alt="Mini Logo" class="floating-btn-logo">
+        <span>Join The Council</span>
+    </a>
+
+    <script>
+        // Theme Engine
+        const themeToggle = document.getElementById('themeToggle');
+        if (localStorage.getItem('theme') === 'light') { document.documentElement.setAttribute('data-theme', 'light'); }
+        themeToggle.addEventListener('click', () => {
+            let currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        const menuToggle = document.querySelector(".menu-toggle");
+        const navLinks = document.querySelector(".nav-links");
+        menuToggle.addEventListener("click", () => {
+            menuToggle.classList.toggle("active");
+            navLinks.classList.toggle("active");
+        });
+
+        // Glowing Ambient Rising Smoke Particle Loop Engine
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        let smoke = [];
+
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+
+        class SmokeParticle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 100;
+                this.radius = Math.random() * 40 + 20;
+                this.speed = Math.random() * 0.5 + 0.2;
+                this.opacity = Math.random() * 0.12 + 0.03;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                let currentTheme = document.documentElement.getAttribute('data-theme');
+                let colorStr = currentTheme === 'light' ? `200, 75, 35` : `255, 69, 0`;
+                let grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                grad.addColorStop(0, `rgba(${colorStr}, ${this.opacity})`);
+                grad.addColorStop(1, 'rgba(3, 7, 18, 0)');
+                ctx.fillStyle = grad;
+                ctx.fill();
+            }
+            update() {
+                this.y -= this.speed;
+                if(this.y < -100) {
+                    this.y = canvas.height + 100;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+        }
+
+        for(let i=0; i<30; i++) smoke.push(new SmokeParticle());
+
+        function loop() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            smoke.forEach(s => { s.update(); s.draw(); });
+            requestAnimationFrame(loop);
+        }
+        loop();
+
+        // Interactive 3D Card Hover Parallax Mechanics
+        if(window.innerWidth > 768) {
+            document.querySelectorAll('.bento-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    let rect = card.getBoundingClientRect();
+                    let x = e.clientX - rect.left - (rect.width/2);
+                    let y = e.clientY - rect.top - (rect.height/2);
+                    card.style.transform = `rotateY(${x / 15}deg) rotateX(${-y / 15}deg) translateY(-5px)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `rotateY(0deg) rotateX(0deg) translateY(0px)`;
+                });
+            });
+        }
+    </script>
+</body>
+</html>

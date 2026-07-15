@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Council | Team</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;900&family=Plus+Jakarta+Sans:wght@300;500;700&display=swap');
+
+        :root {
+            --bg-dark: #030712;
+            --accent-glow: #ff4500;
+            --accent-blue: #00ffff;
+            --gold-cream: #f4e8c1;
+            --text-muted: #9ca3af;
+            --card-bg: rgba(255, 255, 255, 0.02);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --nav-bg: rgba(3, 7, 18, 0.4);
+            --text-main: #f4e8c1;
+            --font-serif: 'Cinzel', serif;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        [data-theme="light"] {
+            --bg-dark: #faf7f2;
+            --accent-glow: #c84b23;
+            --accent-blue: #0d6efd;
+            --gold-cream: #1e293b;
+            --text-muted: #64748b;
+            --card-bg: rgba(30, 41, 59, 0.03);
+            --card-border: rgba(30, 41, 59, 0.1);
+            --nav-bg: rgba(250, 247, 242, 0.6);
+            --text-main: #0f172a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background: var(--bg-dark); color: var(--text-main); font-family: var(--font-sans); overflow-x: hidden; transition: background 0.5s ease, color 0.5s ease; }
+        #bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+
+        /* Navbar Layout */
+        header { position: fixed; top: 0; left: 0; width: 100%; z-index: 100; background: var(--nav-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--card-border); }
+        .nav-container { max-width: 1400px; margin: 0 auto; padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo-section { display: flex; align-items: center; gap: 15px; text-decoration: none; color: var(--text-main); }
+        .logo-img { height: 50px; width: 50px; border-radius: 50%; border: 2px solid var(--accent-glow); object-fit: cover; }
+        .logo-text { font-family: var(--font-serif); font-weight: 900; font-size: 1.2rem; letter-spacing: 2px; }
+        
+        .right-nav-cluster { display: flex; align-items: center; gap: 2rem; }
+        .nav-links { display: flex; gap: 3rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 0.95rem; letter-spacing: 1px; text-transform: uppercase; transition: all 0.4s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-main); }
+
+        .theme-toggle-btn { background: var(--card-bg); border: 2px solid var(--card-border); cursor: pointer; padding: 8px 16px; border-radius: 50px; color: var(--text-main); font-weight: 700; font-size: 0.8rem; letter-spacing: 1px; }
+
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; background: none; border: none; cursor: pointer; z-index: 101; }
+        .menu-toggle span { width: 25px; height: 2px; background-color: var(--text-main); transition: 0.4s; }
+
+        /* Floating Button */
+        .floating-join-btn { position: fixed; bottom: 35px; right: 35px; z-index: 99; display: flex; align-items: center; gap: 15px; background: var(--bg-dark); border: 2px solid var(--accent-glow); padding: 12px 24px 12px 12px; border-radius: 50px; text-decoration: none; color: var(--text-main); font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; backdrop-filter: blur(15px); box-shadow: 0 0 30px rgba(255, 69, 0, 0.2); transition: all 0.4s; }
+        .floating-btn-logo { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); animation: spin 25s linear infinite; }
+
+        /* Team Structure Rules */
+        .team-wrapper { max-width: 1400px; margin: 100px auto 4rem; padding: 0 2rem; position: relative; z-index: 2; }
+        .team-title { font-family: var(--font-serif); font-size: clamp(2.5rem, 5vw, 4.5rem); text-align: center; margin-bottom: 5rem; }
+        .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 3rem; }
+        .profile-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 32px; overflow: hidden; backdrop-filter: blur(15px); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; }
+        .profile-card:hover { border-color: var(--accent-blue); transform: translateY(-10px); }
+        
+        .image-bucket { width: 100%; height: 340px; background: #090f1d; overflow: hidden; }
+        .avatar { width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%) contrast(1.1); transition: all 0.5s; }
+        .profile-card:hover .avatar { filter: grayscale(0%) contrast(1); transform: scale(1.05); }
+        
+        .meta-area { padding: 2rem; text-align: center; }
+        .badge { font-size: 0.75rem; font-weight: 700; color: var(--accent-glow); letter-spacing: 3px; text-transform: uppercase; }
+        .meta-area h3 { font-family: var(--font-serif); font-size: 1.5rem; margin: 0.5rem 0 1.2rem; }
+
+        .links-flex { display: flex; justify-content: center; gap: 1.5rem; }
+        .links-flex a { width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .links-flex svg { width: 20px; height: 20px; fill: var(--text-muted); transition: all 0.3s; }
+        .links-flex a:hover { background: rgba(0, 255, 255, 0.1); border-color: var(--accent-blue); transform: scale(1.1); }
+        .links-flex a:hover svg { fill: var(--accent-blue); }
+
+        @media (max-width: 768px) {
+            .nav-links { position: fixed; top: 0; right: -100%; width: 85%; height: 100vh; background: var(--bg-dark); flex-direction: column; justify-content: center; align-items: center; gap: 3rem; transition: 0.4s; }
+            .nav-links.active { right: 0; }
+            .menu-toggle { display: flex; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <header>
+        <nav class="nav-container">
+            <a href="index.html" class="logo-section">
+                <img src="logo.png" alt="Logo" class="logo-img">
+                <span class="logo-text">D&D COUNCIL</span>
+            </a>
+            <div class="right-nav-cluster">
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="events.html">Events</a></li>
+                    <li><a href="team.html" class="active">The Team</a></li>
+                </ul>
+                <button class="theme-toggle-btn" id="themeToggle">🌓 Mode</button>
+                <button class="menu-toggle"><span></span><span></span><span></span></button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="team-wrapper">
+        <h1 class="team-title">THE EXECUTIVE COUNCIL</h1>
+        <div class="team-grid">
+            
+            <div class="profile-card">
+                <div class="image-bucket">
+                    <img src="logo.png" alt="Profile Avatar" class="avatar">
+                </div>
+                <div class="meta-area">
+                    <span class="badge">CLUB PRESIDENT</span>
+                    <h3>Alex Mercer</h3>
+                    <div class="links-flex">
+                        <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn">
+                            <svg viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+                        </a>
+                        <a href="https://instagram.com" target="_blank" aria-label="Instagram">
+                            <svg viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6A3.6 3.6 0 0 0 16.4 4H7.6m6.4 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4m0 4.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7M17 5.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5z"/></svg>
+                        </a>
+                        <a href="https://wa.me/918451055384" target="_blank" aria-label="WhatsApp">
+                            <svg viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.88 13.06c-.24.68-1.43 1.24-1.93 1.33-.49.08-1.12.16-3.25-.72-2.73-1.12-4.5-3.91-4.63-4.1-.14-.19-1.12-1.49-1.12-2.84 0-1.35.7-2.01.95-2.28.25-.26.66-.33.88-.33.22 0 .44.01.62.02.2 0 .46-.08.72.55.27.65.92 2.24 1 2.4.08.16.14.36.03.57-.11.22-.24.36-.41.56-.16.19-.36.43-.51.58-.17.17-.35.35-.15.69.2.34.89 1.46 1.91 2.37 1.32 1.18 2.43 1.54 2.77 1.71.34.17.54.14.74-.08.2-.24.87-.97 1.09-1.31.24-.34.46-.28.79-.16.33.12 2.11 1 2.48 1.18.36.18.61.27.69.42.08.15.08.87-.16 1.55z"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <a href="form.html" class="floating-join-btn">
+        <img src="logo.png" alt="Mini Logo" class="floating-btn-logo">
+        <span>Join The Council</span>
+    </a>
+
+    <script>
+        // Theme Engine
+        const themeToggle = document.getElementById('themeToggle');
+        if (localStorage.getItem('theme') === 'light') { document.documentElement.setAttribute('data-theme', 'light'); }
+        themeToggle.addEventListener('click', () => {
+            let currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        const menuToggle = document.querySelector(".menu-toggle");
+        const navLinks = document.querySelector(".nav-links");
+        menuToggle.addEventListener("click", () => {
+            menuToggle.classList.toggle("active");
+            navLinks.classList.toggle("active");
+        });
+
+        // Kinetic Starfield Engine
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+
+        class Star {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5;
+                this.speed = Math.random() * 0.2 + 0.05;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                let currentTheme = document.documentElement.getAttribute('data-theme');
+                ctx.fillStyle = currentTheme === 'light' ? 'rgba(200, 75, 35, 0.2)' : 'rgba(0, 255, 255, 0.3)';
+                ctx.fill();
+            }
+            update() {
+                this.x += this.speed;
+                if(this.x > canvas.width) this.x = 0;
+            }
+        }
+
+        for(let i=0; i<60; i++) stars.push(new Star());
+
+        function loop() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            stars.forEach(s => { s.update(); s.draw(); });
+            requestAnimationFrame(loop);
+        }
+        loop();
+    </script>
+</body>
+</html>
